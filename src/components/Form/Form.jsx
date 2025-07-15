@@ -1,10 +1,41 @@
-import React from "react";
+import React, { useEffect } from "react";
 import './Form.css'
+import { useTelegram } from "../../hooks/useTelegram";
 
 const Form = () => {
+    const [usrID, setUsrID] = useState('')
+    const [orderID, setOrderID] = useState('')
+    const {tg} = useTelegram();
+
+    useEffect( () => {
+        tg.MainButton.setParams({
+            text: 'отправить данные'
+        })
+    }, [])
+
+    useEffect(() => {
+        if(!usrID || !orderID) {
+            tg.MainButton.hide();
+        } else {
+            tg.MainButton.show();
+        }
+    }, [usrID, orderID])
+
+    const onChangeUsrID = () => {
+        setUsrID(e.target.value)
+    }
+
+    const onChangeOrderID = () => {
+        setOrderID(e.target.value)
+    }
+
     return(
-        <div>
-            From
+        <div className={"form"}>
+            <h3>
+                Введите ваши данные
+            </h3>
+            <input className={'input'} type = "text" placeholder={'Username'} value={usrID} onChange={onChangeUsrID}/>
+            <input className={'input'} type = "text" placeholder={'Номер заказа'} value={orderID} onChange={onChangeOrderID}/>
         </div>
     )
 }
