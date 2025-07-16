@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import './Form.css'
 import { useTelegram } from "../../hooks/useTelegram";
 
@@ -21,11 +21,11 @@ const Form = () => {
         }
     }, [usrID, orderID])
 
-    const onChangeUsrID = () => {
+    const onChangeUsrID = (e) => {
         setUsrID(e.target.value)
     }
 
-    const onChangeOrderID = () => {
+    const onChangeOrderID = (e) => {
         setOrderID(e.target.value)
     }
 
