@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import './ProductList.css'
 import ProductItem from "../ProductItem/ProductItem";
 import { useTelegram } from "../../hooks/useTelegram";
@@ -11,7 +11,6 @@ const products = [
 ]
 
 const getTotalPrice = (items) => {
-    
     return items.reduce((acc, item) => {
         return acc += item.price
     }, 0)
@@ -19,7 +18,7 @@ const getTotalPrice = (items) => {
 
 const ProductList = () => {
     const [addedItems, setAddedItems] = useState([])
-    const {tg, queryId} = useTelegram();
+    const {tg, queryId, user} = useTelegram();
     
     const onSendData = useCallback(() => {
         const data = {
@@ -28,7 +27,8 @@ const ProductList = () => {
             queryId,
         }
 
-        fetch('https://localhost:8000', {
+        // Исправлен URL - убран https для локальной разработки
+        fetch('http://localhost:8000/web-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',                
@@ -41,7 +41,7 @@ const ProductList = () => {
         try {
             const totalPrice = getTotalPrice(addedItems);
             
-            const response = await fetch('https://localhost:8000/create-invoice', {
+            const response = await fetch('http://localhost:8000/create-invoice', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -50,9 +50,15 @@ const ProductList = () => {
                     products: addedItems,
                     totalPrice: totalPrice,
                     currency: 'XTR', 
-                    queryId
+                    queryId,
+                    userId: user?.id 
                 })
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.details || 'Ошибка создания инвойса');
+            }
 
             const { invoice_link } = await response.json();
 
@@ -72,10 +78,10 @@ const ProductList = () => {
                 }
             });
         } catch (error) {
-            console.error(error);
-            tg.showAlert('Ошибка при создании инвойса');
+            console.error('Ошибка при создании инвойса:', error);
+            tg.showAlert('Ошибка при создании инвойса: ' + error.message);
         }
-    }, [addedItems, tg, queryId]);
+    }, [addedItems, tg, queryId, user]);
 
     const onAdd = (product) => {
         const alreadyAdded = addedItems.find(item => item.id === product.id);
@@ -96,10 +102,18 @@ const ProductList = () => {
             tg.MainButton.setParams({
                 text: `Купить за ${getTotalPrice(newItems)} ⭐`
             });
-            
-            tg.MainButton.onClick(handleStarsPayment);
         }
     }
+
+    useEffect(() => {
+        if (addedItems.length > 0) {
+            tg.MainButton.onClick(handleStarsPayment);
+        }
+        
+        return () => {
+            tg.MainButton.offClick(handleStarsPayment);
+        };
+    }, [handleStarsPayment, addedItems.length, tg]);
 
     return (
         <div className={'list'}>
