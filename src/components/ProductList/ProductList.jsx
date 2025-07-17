@@ -2,6 +2,7 @@ import React from "react";
 import './ProductList.css'
 import ProductItem from "../ProductItem/ProductItem";
 import { useTelegram } from "../../hooks/useTelegram";
+import { useState } from "react";
 
 const products =[
     {id: '1', title: 'item1', price: 100, description: 'description1'},
@@ -10,7 +11,7 @@ const products =[
 ]
 
 const getTotalPrice = (items) => {
-    return items.reduce((acc, items) => {
+    return items.reduce((acc, item) => {
         return acc += item.price
     }, 0)
 }
