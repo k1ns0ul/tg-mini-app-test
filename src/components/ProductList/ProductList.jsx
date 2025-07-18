@@ -27,8 +27,7 @@ const ProductList = () => {
             queryId,
         }
 
-        // Исправлен URL - убран https для локальной разработки
-        fetch('http://localhost:8000/web-data', {
+        fetch('http://45.136.180.236/web-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',                
@@ -41,7 +40,7 @@ const ProductList = () => {
         try {
             const totalPrice = getTotalPrice(addedItems);
             
-            const response = await fetch('http://localhost:8000/create-invoice', {
+            const response = await fetch('http://45.136.180.236/create-invoice', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
